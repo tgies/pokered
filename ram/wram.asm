@@ -266,6 +266,9 @@ wListScrollOffset:: db
 ; allows the caller to scroll the entire menu up or down when this happens.
 wMenuWatchMovingOutOfBounds:: db
 
+wMusicTestSelection:: db
+wMusicTestTrackNumber:: db
+
 wTradeCenterPointerTableIndex:: db
 
 	ds 1
