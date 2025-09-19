@@ -6,7 +6,7 @@ KeyItemFlags:
 	dbit FALSE ; POKE_BALL
 	dbit TRUE  ; TOWN_MAP
 	dbit TRUE  ; BICYCLE
-	dbit TRUE  ; SURFBOARD
+        dbit TRUE  ; SURFBOARD
 	dbit TRUE  ; SAFARI_BALL
 	dbit TRUE  ; POKEDEX
 	dbit FALSE ; MOON_STONE
@@ -43,13 +43,13 @@ KeyItemFlags:
 	dbit TRUE  ; DOME_FOSSIL
 	dbit TRUE  ; HELIX_FOSSIL
 	dbit TRUE  ; SECRET_KEY
-	dbit TRUE  ; ITEM_2C
+        dbit TRUE  ; SCAN SCOPE
 	dbit TRUE  ; BIKE_VOUCHER
 	dbit FALSE ; X_ACCURACY
 	dbit FALSE ; LEAF_STONE
 	dbit TRUE  ; CARD_KEY
 	dbit FALSE ; NUGGET
-	dbit FALSE ; ITEM_32
+        dbit FALSE ; BATTLEDRUM
 	dbit FALSE ; POKE_DOLL
 	dbit FALSE ; FULL_HEAL
 	dbit FALSE ; REVIVE

@@ -23,7 +23,7 @@ ItemUsePtrTable:
 	dw ItemUseBall       ; POKE_BALL
 	dw ItemUseTownMap    ; TOWN_MAP
 	dw ItemUseBicycle    ; BICYCLE
-	dw ItemUseSurfboard  ; SURFBOARD
+        dw ItemUseSurfboard  ; SURFBOARD
 	dw ItemUseBall       ; SAFARI_BALL
 	dw ItemUsePokedex    ; POKEDEX
 	dw ItemUseEvoStone   ; MOON_STONE
@@ -60,13 +60,13 @@ ItemUsePtrTable:
 	dw UnusableItem      ; DOME_FOSSIL
 	dw UnusableItem      ; HELIX_FOSSIL
 	dw UnusableItem      ; SECRET_KEY
-	dw UnusableItem      ; ITEM_2C
+        dw ItemUseScanScope  ; SCAN SCOPE
 	dw UnusableItem      ; BIKE_VOUCHER
 	dw ItemUseXAccuracy  ; X_ACCURACY
 	dw ItemUseEvoStone   ; LEAF_STONE
 	dw ItemUseCardKey    ; CARD_KEY
 	dw UnusableItem      ; NUGGET
-	dw UnusableItem      ; ITEM_32
+        dw ItemUseBattleDrum ; BATTLEDRUM
 	dw ItemUsePokeDoll   ; POKE_DOLL
 	dw ItemUseMedicine   ; FULL_HEAL
 	dw ItemUseMedicine   ; REVIVE
@@ -678,14 +678,29 @@ ItemUseSurfboard:
 	call CheckForTilePairCollisions
 	jp c, SurfingAttemptFailed
 .surf
-	call .makePlayerMoveForward
-	ld hl, wStatusFlags5
-	set BIT_SCRIPTED_MOVEMENT_STATE, [hl]
-	ld a, 2
-	ld [wWalkBikeSurfState], a ; change player state to surfing
-	call PlayDefaultMusic ; play surfing music
-	ld hl, SurfingGotOnText
-	jp PrintText
+        call .makePlayerMoveForward
+        ld hl, wStatusFlags5
+        set BIT_SCRIPTED_MOVEMENT_STATE, [hl]
+        ld a, 2
+        ld [wWalkBikeSurfState], a ; change player state to surfing
+        call PlayDefaultMusic ; play surfing music
+        ld a, [wPseudoItemID]
+        and a
+        jr nz, .usedAsHM
+        ld a, 50
+        ld b, a
+        ld hl, wRepelRemainingSteps
+        ld a, [hl]
+        cp b
+        jr nc, .keepRepel
+        ld [hl], b
+.keepRepel
+        ld hl, SurfboardGlideText
+        jr .printMessage
+.usedAsHM
+        ld hl, SurfingGotOnText
+.printMessage
+        jp PrintText
 .tryToStopSurfing
 	xor a
 	ldh [hSpriteIndex], a
@@ -746,12 +761,16 @@ ItemUseSurfboard:
 	ret
 
 SurfingGotOnText:
-	text_far _SurfingGotOnText
-	text_end
+        text_far _SurfingGotOnText
+        text_end
+
+SurfboardGlideText:
+        text_far _SurfboardGlideText
+        text_end
 
 SurfingNoPlaceToGetOffText:
-	text_far _SurfingNoPlaceToGetOffText
-	text_end
+        text_far _SurfingNoPlaceToGetOffText
+        text_end
 
 ItemUsePokedex:
 	predef_jump ShowPokedexMenu
@@ -1612,16 +1631,40 @@ ItemUsePokeDoll:
 	jp PrintItemUseTextAndRemoveItem
 
 ItemUseGuardSpec:
-	ld a, [wIsInBattle]
-	and a
-	jp z, ItemUseNotTime
-	ld hl, wPlayerBattleStatus2
-	set PROTECTED_BY_MIST, [hl] ; Mist bit
-	jp PrintItemUseTextAndRemoveItem
+        ld a, [wIsInBattle]
+        and a
+        jp z, ItemUseNotTime
+        ld hl, wPlayerBattleStatus2
+        set PROTECTED_BY_MIST, [hl] ; Mist bit
+        jp PrintItemUseTextAndRemoveItem
+
+ItemUseBattleDrum:
+        ld a, [wIsInBattle]
+        and a
+        jp z, ItemUseNotTime
+        ld hl, wPlayerBattleStatus2
+        ld c, (1 << PROTECTED_BY_MIST) | (1 << GETTING_PUMPED)
+        ld a, [hl]
+        ld b, a
+        or c
+        ld [hl], a
+        cp b
+        jr z, .noEffect
+        ld hl, wEnemyBattleStatus2
+        res PROTECTED_BY_MIST, [hl]
+        res GETTING_PUMPED, [hl]
+        ld hl, BattleDrumPumpedText
+        call PrintText
+        ld a, SFX_LEVEL_UP
+        call PlaySound
+        jp RemoveUsedItem
+.noEffect
+        ld hl, BattleDrumNoEffectText
+        jp ItemUseFailed
 
 ItemUseSuperRepel:
-	ld b, 200
-	jp ItemUseRepelCommon
+        ld b, 200
+        jp ItemUseRepelCommon
 
 ItemUseMaxRepel:
 	ld b, 250
@@ -1919,36 +1962,142 @@ ItemUseOaksParcel:
 	jp ItemUseNotYoursToUse
 
 ItemUseItemfinder:
-	ld a, [wIsInBattle]
-	and a
-	jp nz, ItemUseNotTime
-	call ItemUseReloadOverworldData
-	farcall HiddenItemNear ; check for hidden items
-	ld hl, ItemfinderFoundNothingText
-	jr nc, .printText ; if no hidden items
-	ld c, 4
+        ld a, [wIsInBattle]
+        and a
+        jp nz, ItemUseNotTime
+        call ItemUseReloadOverworldData
+        farcall HiddenItemNear ; check for hidden items
+        ld hl, ItemfinderFoundNothingText
+        jr nc, .printText ; if no hidden items
+        ld c, 4
 .loop
-	ld a, SFX_HEALING_MACHINE
-	call PlaySoundWaitForCurrent
-	ld a, SFX_PURCHASE
-	call PlaySoundWaitForCurrent
-	dec c
-	jr nz, .loop
-	ld hl, ItemfinderFoundItemText
+        ld a, SFX_HEALING_MACHINE
+        call PlaySoundWaitForCurrent
+        ld a, SFX_PURCHASE
+        call PlaySoundWaitForCurrent
+        dec c
+        jr nz, .loop
+        ld hl, ItemfinderFoundItemText
 .printText
-	jp PrintText
+        jp PrintText
+
+ItemUseScanScope:
+        ld a, [wIsInBattle]
+        and a
+        jp nz, ItemUseNotTime
+        call ItemUseReloadOverworldData
+        farcall LoadWildData
+        ld a, [wCurEnemyLevel]
+        push af
+        ld a, [wCurPartySpecies]
+        push af
+        ld a, [wWalkBikeSurfState]
+        cp 2
+        jr nz, .checkGrass
+        ld a, [wWaterRate]
+        and a
+        jr z, .checkGrass
+        ld de, wWaterMons
+        ld a, 1
+        jr .storeEnv
+.checkGrass
+        ld a, [wGrassRate]
+        and a
+        jr z, .maybeWater
+        ld de, wGrassMons
+        xor a
+        jr .storeEnv
+.maybeWater
+        ld a, [wWaterRate]
+        and a
+        jr z, .noData
+        ld de, wWaterMons
+        ld a, 1
+.storeEnv
+        ld [wTempByteValue], a
+        xor a
+        ld [wCurEnemyLevel], a
+        ld [wCurPartySpecies], a
+        ld b, 10
+.scanLoop
+        ld a, [de]
+        inc de
+        ld h, a
+        ld a, [de]
+        inc de
+        ld l, a
+        ld a, l
+        and a
+        jr z, .nextEntry
+        cp $ff
+        jr z, .nextEntry
+        ld a, h
+        ld c, a
+        ld a, [wCurEnemyLevel]
+        cp c
+        jr nc, .nextEntry
+        ld a, c
+        ld [wCurEnemyLevel], a
+        ld a, l
+        ld [wCurPartySpecies], a
+.nextEntry
+        dec b
+        jr nz, .scanLoop
+        ld a, [wCurPartySpecies]
+        and a
+        jr z, .noData
+        ld [wNamedObjectIndex], a
+        call GetMonName
+        call CopyToStringBuffer
+        ld a, [wTempByteValue]
+        and a
+        ld hl, ScanScopeGrassText
+        jr z, .print
+        ld hl, ScanScopeWaterText
+.print
+        call PrintText
+        jr .restore
+.noData
+        ld hl, ScanScopeNoDataText
+        call PrintText
+.restore
+        pop af
+        ld [wCurPartySpecies], a
+        pop af
+        ld [wCurEnemyLevel], a
+        ret
 
 ItemfinderFoundItemText:
-	text_far _ItemfinderFoundItemText
-	text_end
+        text_far _ItemfinderFoundItemText
+        text_end
 
 ItemfinderFoundNothingText:
-	text_far _ItemfinderFoundNothingText
-	text_end
+        text_far _ItemfinderFoundNothingText
+        text_end
+
+ScanScopeGrassText:
+        text_far _ScanScopeGrassText
+        text_end
+
+ScanScopeWaterText:
+        text_far _ScanScopeWaterText
+        text_end
+
+ScanScopeNoDataText:
+        text_far _ScanScopeNoDataText
+        text_end
+
+BattleDrumPumpedText:
+        text_far _BattleDrumPumpedText
+        text_end
+
+BattleDrumNoEffectText:
+        text_far _BattleDrumNoEffectText
+        text_end
 
 ItemUsePPUp:
-	ld a, [wIsInBattle]
-	and a
+        ld a, [wIsInBattle]
+        and a
 	jp nz, ItemUseNotTime
 
 ItemUsePPRestore:
