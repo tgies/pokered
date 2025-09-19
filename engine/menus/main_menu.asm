@@ -33,22 +33,22 @@ MainMenu:
 	cp 1
 	jr z, .noSaveFile
 ; there's a save file
-	hlcoord 0, 0
-	ld b, 6
-	ld c, 13
-	call TextBoxBorder
-	hlcoord 2, 2
-	ld de, ContinueText
-	call PlaceString
-	jr .next2
+        hlcoord 0, 0
+        ld b, 8
+        ld c, 13
+        call TextBoxBorder
+        hlcoord 2, 2
+        ld de, ContinueText
+        call PlaceString
+        jr .next2
 .noSaveFile
-	hlcoord 0, 0
-	ld b, 4
-	ld c, 13
-	call TextBoxBorder
-	hlcoord 2, 2
-	ld de, NewGameText
-	call PlaceString
+        hlcoord 0, 0
+        ld b, 6
+        ld c, 13
+        call TextBoxBorder
+        hlcoord 2, 2
+        ld de, NewGameText
+        call PlaceString
 .next2
 	ld hl, wStatusFlags5
 	res BIT_NO_TEXT_DELAY, [hl]
@@ -63,13 +63,14 @@ MainMenu:
 	ld [wTopMenuItemY], a
 	ld a, PAD_A | PAD_B | PAD_START
 	ld [wMenuWatchedKeys], a
-	ld a, [wSaveFileStatus]
-	ld [wMaxMenuItem], a
-	call HandleMenuInput
-	bit B_PAD_B, a
-	jp nz, DisplayTitleScreen ; if so, go back to the title screen
-	ld c, 20
-	call DelayFrames
+        ld a, [wSaveFileStatus]
+        inc a
+        ld [wMaxMenuItem], a
+        call HandleMenuInput
+        bit B_PAD_B, a
+        jp nz, DisplayTitleScreen ; if so, go back to the title screen
+        ld c, 20
+        call DelayFrames
 	ld a, [wCurrentMenuItem]
 	ld b, a
 	ld a, [wSaveFileStatus]
@@ -79,15 +80,21 @@ MainMenu:
 ; are the same whether or not there's a save file.
 	inc b
 .skipInc
-	ld a, b
-	and a
-	jr z, .choseContinue
-	cp 1
-	jp z, StartNewGame
-	call DisplayOptionMenu
-	ld a, TRUE
-	ld [wOptionsInitialized], a
-	jp .mainMenuLoop
+        ld a, b
+        and a
+        jr z, .choseContinue
+        cp 1
+        jp z, StartNewGame
+        cp 2
+        jr z, .optionMenu
+        call DisplayMusicTestMenu
+        jp .mainMenuLoop
+
+.optionMenu
+        call DisplayOptionMenu
+        ld a, TRUE
+        ld [wOptionsInitialized], a
+        jp .mainMenuLoop
 .choseContinue
 	call DisplayContinueGameInfo
 	ld hl, wCurrentMapScriptFlags
@@ -346,8 +353,9 @@ ContinueText:
 	; fallthrough
 
 NewGameText:
-	db   "NEW GAME"
-	next "OPTION@"
+        db   "NEW GAME"
+        next "OPTION"
+        next "MUSIC TEST@"
 
 CableClubOptionsText:
 	db   "TRADE CENTER"
@@ -690,17 +698,218 @@ SetCursorPositionsFromOptions:
 ; 00: X coordinate of menu cursor
 ; 01: delay after printing a letter (in frames)
 TextSpeedOptionData:
-	db 14, TEXT_DELAY_SLOW
-	db  7, TEXT_DELAY_MEDIUM
-	db  1, TEXT_DELAY_FAST
-	db  7, -1 ; end (default X coordinate)
+        db 14, TEXT_DELAY_SLOW
+        db  7, TEXT_DELAY_MEDIUM
+        db  1, TEXT_DELAY_FAST
+        db  7, -1 ; end (default X coordinate)
+
+DisplayMusicTestMenu:
+        ld a, [wLastMusicSoundID]
+        ld [wMusicTestReturnSong], a
+        ld a, [wAudioROMBank]
+        ld [wMusicTestReturnBank], a
+        xor a
+        ld [wMusicTestTrackIndex], a
+        call ClearScreen
+        call RunDefaultPaletteCommand
+        call LoadTextBoxTilePatterns
+        call LoadFontTilePatterns
+        call UpdateSprites
+        call MusicTest_DrawScreen
+        call MusicTest_UpdateTrackDisplay
+        call MusicTest_PlayCurrentTrack
+        ld a, $1
+        ldh [hAutoBGTransferEnabled], a
+        call Delay3
+.loop
+        call JoypadLowSensitivity
+        ldh a, [hJoy5]
+        ld b, a
+        bit B_PAD_B, b
+        jr nz, .exit
+        bit B_PAD_START, b
+        jr nz, .exit
+        bit B_PAD_UP, b
+        jr nz, .previous
+        bit B_PAD_LEFT, b
+        jr nz, .previous
+        bit B_PAD_DOWN, b
+        jr nz, .next
+        bit B_PAD_RIGHT, b
+        jr nz, .next
+        bit B_PAD_A, b
+        jr nz, .replay
+        jr .loop
+
+.replay
+        call MusicTest_PlayCurrentTrack
+        jr .loop
+
+.previous
+        call MusicTest_SelectPreviousTrack
+        jr .loop
+
+.next
+        call MusicTest_SelectNextTrack
+        jr .loop
+
+.exit
+        xor a
+        ldh [hAutoBGTransferEnabled], a
+        ld a, [wMusicTestReturnBank]
+        ld c, a
+        ld a, [wMusicTestReturnSong]
+        call PlayMusic
+        ret
+
+MusicTest_DrawScreen:
+        hlcoord 0, 0
+        ld b, 6
+        ld c, 18
+        call TextBoxBorder
+        hlcoord 2, 1
+        ld de, MusicTestTitleText
+        call PlaceString
+        hlcoord 0, 7
+        ld b, 6
+        ld c, 18
+        call TextBoxBorder
+        hlcoord 2, 8
+        ld de, MusicTestControlsText
+        call PlaceString
+        ret
+
+MusicTest_SelectNextTrack:
+        ld a, [wMusicTestTrackIndex]
+        inc a
+        cp NUM_MUSIC_TEST_TRACKS
+        jr c, .store
+        xor a
+.store
+        ld [wMusicTestTrackIndex], a
+        call MusicTest_UpdateTrackDisplay
+        call MusicTest_PlayCurrentTrack
+        ret
+
+MusicTest_SelectPreviousTrack:
+        ld a, [wMusicTestTrackIndex]
+        and a
+        jr nz, .decrement
+        ld a, MUSIC_TEST_LAST_TRACK
+        jr .store
+.decrement
+        dec a
+.store
+        ld [wMusicTestTrackIndex], a
+        call MusicTest_UpdateTrackDisplay
+        call MusicTest_PlayCurrentTrack
+        ret
+
+MusicTest_UpdateTrackDisplay:
+        hlcoord 1, 3
+        lb bc, 1, 16
+        call ClearScreenArea
+        call MusicTest_GetTrackEntry
+        ld a, [wMusicTestTrackIndex]
+        inc a
+        ld [wMusicTestDisplayValue], a
+        xor a
+        ld [wMusicTestDisplayValue + 1], a
+        hlcoord 2, 3
+        ld de, MusicTestTrackLabelText
+        call PlaceString
+        hlcoord 8, 3
+        ld de, wMusicTestDisplayValue
+        lb bc, LEADING_ZEROES | 1, 2
+        call PrintNumber
+        ret
+
+MusicTest_PlayCurrentTrack:
+        call MusicTest_GetTrackEntry
+        ld a, b
+        call PlayMusic
+        ret
+
+MusicTest_GetTrackEntry:
+        ld hl, MusicTestTracks
+        ld bc, MUSIC_TEST_TRACK_ENTRY_LENGTH
+        ld a, [wMusicTestTrackIndex]
+        call AddNTimes
+        ld b, [hl]
+        inc hl
+        ld c, [hl]
+        ret
+
+MusicTestTitleText:
+        db "MUSIC TEST@"
+
+MusicTestControlsText:
+        db "D-PAD: CHANGE"
+        next "A: REPLAY"
+        next "B: EXIT@"
+
+MusicTestTrackLabelText:
+        db "TRACK @"
+
+MusicTestTracks:
+        table_width 2
+        db MUSIC_PALLET_TOWN,        BANK(Music_PalletTown)
+        db MUSIC_POKECENTER,         BANK(Music_Pokecenter)
+        db MUSIC_GYM,                BANK(Music_Gym)
+        db MUSIC_CITIES1,            BANK(Music_Cities1)
+        db MUSIC_CITIES2,            BANK(Music_Cities2)
+        db MUSIC_CELADON,            BANK(Music_Celadon)
+        db MUSIC_CINNABAR,           BANK(Music_Cinnabar)
+        db MUSIC_VERMILION,          BANK(Music_Vermilion)
+        db MUSIC_LAVENDER,           BANK(Music_Lavender)
+        db MUSIC_SS_ANNE,            BANK(Music_SSAnne)
+        db MUSIC_MEET_PROF_OAK,      BANK(Music_MeetProfOak)
+        db MUSIC_MEET_RIVAL,         BANK(Music_MeetRival)
+        db MUSIC_MUSEUM_GUY,         BANK(Music_MuseumGuy)
+        db MUSIC_SAFARI_ZONE,        BANK(Music_SafariZone)
+        db MUSIC_PKMN_HEALED,        BANK(Music_PkmnHealed)
+        db MUSIC_ROUTES1,            BANK(Music_Routes1)
+        db MUSIC_ROUTES2,            BANK(Music_Routes2)
+        db MUSIC_ROUTES3,            BANK(Music_Routes3)
+        db MUSIC_ROUTES4,            BANK(Music_Routes4)
+        db MUSIC_INDIGO_PLATEAU,     BANK(Music_IndigoPlateau)
+        db MUSIC_GYM_LEADER_BATTLE,  BANK(Music_GymLeaderBattle)
+        db MUSIC_TRAINER_BATTLE,     BANK(Music_TrainerBattle)
+        db MUSIC_WILD_BATTLE,        BANK(Music_WildBattle)
+        db MUSIC_FINAL_BATTLE,       BANK(Music_FinalBattle)
+        db MUSIC_DEFEATED_TRAINER,   BANK(Music_DefeatedTrainer)
+        db MUSIC_DEFEATED_WILD_MON,  BANK(Music_DefeatedWildMon)
+        db MUSIC_DEFEATED_GYM_LEADER,BANK(Music_DefeatedGymLeader)
+        db MUSIC_TITLE_SCREEN,       BANK(Music_TitleScreen)
+        db MUSIC_CREDITS,            BANK(Music_Credits)
+        db MUSIC_HALL_OF_FAME,       BANK(Music_HallOfFame)
+        db MUSIC_OAKS_LAB,           BANK(Music_OaksLab)
+        db MUSIC_JIGGLYPUFF_SONG,    BANK(Music_JigglypuffSong)
+        db MUSIC_BIKE_RIDING,        BANK(Music_BikeRiding)
+        db MUSIC_SURFING,            BANK(Music_Surfing)
+        db MUSIC_GAME_CORNER,        BANK(Music_GameCorner)
+        db MUSIC_INTRO_BATTLE,       BANK(Music_IntroBattle)
+        db MUSIC_DUNGEON1,           BANK(Music_Dungeon1)
+        db MUSIC_DUNGEON2,           BANK(Music_Dungeon2)
+        db MUSIC_DUNGEON3,           BANK(Music_Dungeon3)
+        db MUSIC_CINNABAR_MANSION,   BANK(Music_CinnabarMansion)
+        db MUSIC_POKEMON_TOWER,      BANK(Music_PokemonTower)
+        db MUSIC_SILPH_CO,           BANK(Music_SilphCo)
+        db MUSIC_MEET_EVIL_TRAINER,  BANK(Music_MeetEvilTrainer)
+        db MUSIC_MEET_FEMALE_TRAINER,BANK(Music_MeetFemaleTrainer)
+        db MUSIC_MEET_MALE_TRAINER,  BANK(Music_MeetMaleTrainer)
+MusicTestTracksEnd:
+
+DEF MUSIC_TEST_TRACK_ENTRY_LENGTH EQU 2
+DEF NUM_MUSIC_TEST_TRACKS EQU (MusicTestTracksEnd - MusicTestTracks) / MUSIC_TEST_TRACK_ENTRY_LENGTH
+DEF MUSIC_TEST_LAST_TRACK EQU NUM_MUSIC_TEST_TRACKS - 1
 
 CheckForPlayerNameInSRAM:
 ; Check if the player name data in SRAM has a string terminator character
 ; (indicating that a name may have been saved there) and return whether it does
 ; in carry.
-	ld a, RAMG_SRAM_ENABLE
-	ld [rRAMG], a
+        ld a, RAMG_SRAM_ENABLE
+        ld [rRAMG], a
 	ld a, BMODE_ADVANCED
 	ld [rBMODE], a
 	ASSERT BANK(sPlayerName) == BMODE_ADVANCED
@@ -722,6 +931,7 @@ CheckForPlayerNameInSRAM:
 .found
 	xor a
 	ld [rRAMG], a
-	ld [rBMODE], a
-	scf
-	ret
+        ld [rBMODE], a
+        scf
+        ret
+
