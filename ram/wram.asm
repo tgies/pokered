@@ -222,6 +222,15 @@ wMenuWatchedKeys:: db
 ; id of previously selected menu item
 wLastMenuItem:: db
 
+; currently selected track index for the music test menu
+wMusicTestSelection:: db
+
+; temporary storage for the currently displayed track number
+wMusicTestCurrentNumber:: db
+
+; pointer to the selected track name for the music test menu
+wMusicTestNamePointer:: dw
+
 ; It is mainly used by the party menu to remember the cursor position while the
 ; menu isn't active.
 ; It is also used to remember the cursor position of mon lists (for the
