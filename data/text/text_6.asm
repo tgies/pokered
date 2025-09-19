@@ -57,16 +57,25 @@ _ItemUseBallText06::
 	text_end
 
 _SurfingGotOnText::
-	text "<PLAYER> got on"
-	line "@"
-	text_ram wNameBuffer
-	text "!"
-	prompt
+        text "<PLAYER> got on"
+        line "@"
+        text_ram wNameBuffer
+        text "!"
+        prompt
+
+_SurfboardGlideText::
+        text "<PLAYER> got on"
+        line "@"
+        text_ram wNameBuffer
+        text "!"
+        para "The water calmed."
+        line "Wild #MON keep off."
+        prompt
 
 _SurfingNoPlaceToGetOffText::
-	text "There's no place"
-	line "to get off!"
-	prompt
+        text "There's no place"
+        line "to get off!"
+        prompt
 
 _VitaminStatRoseText::
 	text_ram wNameBuffer
@@ -123,14 +132,39 @@ _ItemfinderFoundItemText::
 	prompt
 
 _ItemfinderFoundNothingText::
-	text "Nope! ITEMFINDER"
-	line "isn't responding."
-	prompt
+        text "Nope! ITEMFINDER"
+        line "isn't responding."
+        prompt
+
+_ScanScopeGrassText::
+        text "SCAN SCOPE spots"
+        line "@"
+        text_ram wStringBuffer
+        text " in grass!"
+        para "Likely level "
+        text_decimal wCurEnemyLevel, 1, 3
+        text "."
+        prompt
+
+_ScanScopeWaterText::
+        text "SCAN SCOPE spots"
+        line "@"
+        text_ram wStringBuffer
+        text " in water!"
+        para "Likely level "
+        text_decimal wCurEnemyLevel, 1, 3
+        text "."
+        prompt
+
+_ScanScopeNoDataText::
+        text "SCAN SCOPE found"
+        line "no wild signals."
+        prompt
 
 _RaisePPWhichTechniqueText::
-	text "Raise PP of which"
-	line "technique?"
-	done
+        text "Raise PP of which"
+        line "technique?"
+        done
 
 _RestorePPWhichTechniqueText::
 	text "Restore PP of"
@@ -199,14 +233,27 @@ _ItemUseNotYoursToUseText::
 	prompt
 
 _ItemUseNoEffectText::
-	text "It won't have any"
-	line "effect."
-	prompt
+        text "It won't have any"
+        line "effect."
+        prompt
+
+_BattleDrumPumpedText::
+        text "<PLAYER> beat the"
+        line "BATTLEDRUM!"
+        para "A mist shields your"
+        line "team!"
+        cont "Foes lost focus!"
+        prompt
+
+_BattleDrumNoEffectText::
+        text "The rhythm had no"
+        line "effect!"
+        prompt
 
 _ThrowBallAtTrainerMonText1::
-	text "The trainer"
-	line "blocked the BALL!"
-	prompt
+        text "The trainer"
+        line "blocked the BALL!"
+        prompt
 
 _ThrowBallAtTrainerMonText2::
 	text "Don't be a thief!"
