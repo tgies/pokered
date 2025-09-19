@@ -33,19 +33,19 @@ MainMenu:
 	cp 1
 	jr z, .noSaveFile
 ; there's a save file
-	hlcoord 0, 0
-	ld b, 6
-	ld c, 13
-	call TextBoxBorder
+       hlcoord 0, 0
+       ld b, 8
+       ld c, 13
+       call TextBoxBorder
 	hlcoord 2, 2
 	ld de, ContinueText
 	call PlaceString
 	jr .next2
 .noSaveFile
-	hlcoord 0, 0
-	ld b, 4
-	ld c, 13
-	call TextBoxBorder
+       hlcoord 0, 0
+       ld b, 6
+       ld c, 13
+       call TextBoxBorder
 	hlcoord 2, 2
 	ld de, NewGameText
 	call PlaceString
@@ -63,31 +63,41 @@ MainMenu:
 	ld [wTopMenuItemY], a
 	ld a, PAD_A | PAD_B | PAD_START
 	ld [wMenuWatchedKeys], a
-	ld a, [wSaveFileStatus]
-	ld [wMaxMenuItem], a
-	call HandleMenuInput
+       ld a, [wSaveFileStatus]
+       inc a
+       ld [wMaxMenuItem], a
+       call HandleMenuInput
 	bit B_PAD_B, a
 	jp nz, DisplayTitleScreen ; if so, go back to the title screen
 	ld c, 20
 	call DelayFrames
-	ld a, [wCurrentMenuItem]
-	ld b, a
-	ld a, [wSaveFileStatus]
-	cp 2
-	jp z, .skipInc
-; If there's no save file, increment the current menu item so that the numbers
-; are the same whether or not there's a save file.
-	inc b
-.skipInc
-	ld a, b
-	and a
-	jr z, .choseContinue
-	cp 1
-	jp z, StartNewGame
-	call DisplayOptionMenu
-	ld a, TRUE
-	ld [wOptionsInitialized], a
-	jp .mainMenuLoop
+       ld a, [wSaveFileStatus]
+       cp 2
+       jr z, .hasSaveFile
+       ld a, [wCurrentMenuItem]
+       and a
+       jp z, StartNewGame
+       cp 1
+       jr z, .choseOptions
+       farcall MusicTestMenu
+       jp .mainMenuLoop
+
+.hasSaveFile
+       ld a, [wCurrentMenuItem]
+       and a
+       jr z, .choseContinue
+       cp 1
+       jp z, StartNewGame
+       cp 2
+       jr z, .choseOptions
+       farcall MusicTestMenu
+       jp .mainMenuLoop
+
+.choseOptions
+       call DisplayOptionMenu
+       ld a, TRUE
+       ld [wOptionsInitialized], a
+       jp .mainMenuLoop
 .choseContinue
 	call DisplayContinueGameInfo
 	ld hl, wCurrentMapScriptFlags
@@ -347,7 +357,8 @@ ContinueText:
 
 NewGameText:
 	db   "NEW GAME"
-	next "OPTION@"
+	next "OPTION"
+	next "MUSIC TEST@"
 
 CableClubOptionsText:
 	db   "TRADE CENTER"
@@ -694,6 +705,7 @@ TextSpeedOptionData:
 	db  7, TEXT_DELAY_MEDIUM
 	db  1, TEXT_DELAY_FAST
 	db  7, -1 ; end (default X coordinate)
+
 
 CheckForPlayerNameInSRAM:
 ; Check if the player name data in SRAM has a string terminator character
