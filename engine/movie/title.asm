@@ -263,7 +263,7 @@ IF DEF(_DEBUG)
 	bit B_PAD_SELECT, a
 	jp nz, DebugMenu
 ENDC
-	jp MainMenu
+	jp TestBattle ; AI BATTLE MODE
 
 .doClearSaveDialogue
 	farjp DoClearSaveDialogue
