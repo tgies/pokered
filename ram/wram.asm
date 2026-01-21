@@ -73,7 +73,12 @@ wAudioSavedROMBank:: db
 wFrequencyModifier:: db
 wTempoModifier:: db
 
-	ds 13
+        ds 8
+
+wMusicTestReturnSong:: db
+wMusicTestReturnBank:: db
+wMusicTestTrackIndex:: db
+wMusicTestDisplayValue:: dw
 
 
 SECTION "Sprite State Data", WRAM0
