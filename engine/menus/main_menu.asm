@@ -34,18 +34,18 @@ MainMenu:
 	jr z, .noSaveFile
 ; there's a save file
 	hlcoord 0, 0
-	ld b, 6
-	ld c, 13
-	call TextBoxBorder
+        ld b, 8
+        ld c, 13
+        call TextBoxBorder
 	hlcoord 2, 2
 	ld de, ContinueText
 	call PlaceString
 	jr .next2
 .noSaveFile
 	hlcoord 0, 0
-	ld b, 4
-	ld c, 13
-	call TextBoxBorder
+        ld b, 6
+        ld c, 13
+        call TextBoxBorder
 	hlcoord 2, 2
 	ld de, NewGameText
 	call PlaceString
@@ -63,8 +63,9 @@ MainMenu:
 	ld [wTopMenuItemY], a
 	ld a, PAD_A | PAD_B | PAD_START
 	ld [wMenuWatchedKeys], a
-	ld a, [wSaveFileStatus]
-	ld [wMaxMenuItem], a
+        ld a, [wSaveFileStatus]
+        inc a
+        ld [wMaxMenuItem], a
 	call HandleMenuInput
 	bit B_PAD_B, a
 	jp nz, DisplayTitleScreen ; if so, go back to the title screen
@@ -79,15 +80,20 @@ MainMenu:
 ; are the same whether or not there's a save file.
 	inc b
 .skipInc
-	ld a, b
-	and a
-	jr z, .choseContinue
-	cp 1
-	jp z, StartNewGame
-	call DisplayOptionMenu
-	ld a, TRUE
-	ld [wOptionsInitialized], a
-	jp .mainMenuLoop
+        ld a, b
+        and a
+        jr z, .choseContinue
+        cp 1
+        jp z, StartNewGame
+        cp 2
+        jr z, .choseOptions
+        call DisplayMusicTestMenu
+        jp .mainMenuLoop
+.choseOptions
+        call DisplayOptionMenu
+        ld a, TRUE
+        ld [wOptionsInitialized], a
+        jp .mainMenuLoop
 .choseContinue
 	call DisplayContinueGameInfo
 	ld hl, wCurrentMapScriptFlags
@@ -346,8 +352,9 @@ ContinueText:
 	; fallthrough
 
 NewGameText:
-	db   "NEW GAME"
-	next "OPTION@"
+        db   "NEW GAME"
+        next "OPTION"
+        next "MUSIC TEST@"
 
 CableClubOptionsText:
 	db   "TRADE CENTER"

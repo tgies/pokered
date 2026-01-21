@@ -1,3 +1,7 @@
+SECTION "Music Test Strings", ROMX, BANK[$2D]
+
+INCLUDE "text/music_test.asm"
+
 SECTION "bank1", ROMX
 
 INCLUDE "data/sprites/facings.asm"
@@ -18,6 +22,7 @@ INCLUDE "engine/events/pick_up_item.asm"
 INCLUDE "engine/overworld/movement.asm"
 INCLUDE "engine/link/cable_club.asm"
 INCLUDE "engine/menus/main_menu.asm"
+INCLUDE "engine/menus/music_test.asm"
 INCLUDE "engine/movie/oak_speech/oak_speech.asm"
 INCLUDE "engine/overworld/special_warps.asm"
 INCLUDE "engine/debug/debug_party.asm"
