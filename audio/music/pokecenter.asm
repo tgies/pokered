@@ -1,370 +1,76 @@
 Music_Pokecenter_Ch1::
-	tempo 144
-	volume 7, 7
-	duty_cycle 3
-	vibrato 10, 2, 2
-	toggle_perfect_pitch
+        tempo 112
+        volume 7, 7
+        duty_cycle 1
+        vibrato 10, 1, 5
+        toggle_perfect_pitch
+        note_type 12, 11, 6
 .mainloop:
-	note_type 12, 10, 3
-	octave 3
-	note F#, 2
-	note F_, 2
-	note F#, 2
-	note_type 12, 11, 5
-	octave 4
-	note D_, 4
-	note C#, 2
-	octave 3
-	note B_, 2
-	note A_, 2
-	note B_, 2
-	note A_, 2
-	note G_, 2
-	note F#, 2
-	note E_, 2
-	note F#, 2
-	note G_, 2
-	note A_, 2
-	note_type 12, 10, 3
-	note A_, 2
-	note E_, 2
-	note A_, 2
-	note_type 12, 11, 5
-	octave 4
-	note C#, 4
-	octave 3
-	note B_, 2
-	note A_, 2
-	note G_, 2
-	note F#, 2
-	note A_, 2
-	note B_, 2
-	octave 4
-	note C#, 2
-	note D_, 2
-	note C#, 2
-	octave 3
-	note B_, 2
-	note A_, 2
-	note_type 12, 10, 3
-	note F#, 2
-	note F_, 2
-	note F#, 2
-	note_type 12, 11, 5
-	octave 4
-	note D_, 4
-	note C#, 2
-	octave 3
-	note B_, 2
-	note A_, 2
-	note B_, 2
-	note A_, 2
-	note G_, 2
-	note F#, 2
-	note E_, 2
-	note F#, 2
-	note G_, 2
-	note A_, 2
-	note_type 12, 10, 3
-	note A_, 2
-	note E_, 2
-	note A_, 2
-	note_type 12, 11, 5
-	octave 4
-	note C#, 4
-	octave 3
-	note B_, 2
-	note A_, 2
-	note G_, 2
-	note F#, 2
-	note E_, 2
-	note D_, 2
-	note E_, 2
-	note F#, 2
-	note G_, 2
-	note A_, 2
-	note B_, 2
-	note F#, 2
-	note E_, 2
-	note D_, 4
-	note E_, 2
-	note F#, 2
-	note G_, 2
-	note A_, 2
-	note B_, 2
-	note A_, 2
-	note G_, 4
-	note E_, 2
-	note F#, 2
-	note G_, 2
-	note A_, 2
-	note G_, 2
-	note F#, 2
-	note E_, 4
-	note C#, 2
-	note D_, 2
-	note E_, 2
-	note G_, 2
-	note F#, 2
-	note G_, 2
-	note A_, 2
-	note B_, 2
-	note A_, 8
-	octave 4
-	note D_, 2
-	note C#, 2
-	octave 3
-	note B_, 4
-	note A_, 2
-	note B_, 2
-	octave 4
-	note C#, 2
-	note D_, 2
-	note E_, 2
-	note D_, 2
-	note C#, 4
-	octave 3
-	note B_, 2
-	octave 4
-	note C#, 2
-	note D_, 2
-	note E_, 2
-	note C#, 2
-	octave 3
-	note B_, 2
-	note A_, 4
-	note G_, 2
-	note A_, 2
-	note B_, 2
-	note G_, 2
-	note A_, 2
-	note G_, 2
-	note F#, 2
-	note E_, 2
-	note D_, 2
-	note E_, 2
-	note F#, 2
-	note G_, 2
-	sound_loop 0, .mainloop
+        rest 6
+        octave 4
+        note A_, 2
+        note G_, 2
+        note F#, 2
+        note E_, 4
+        rest 4
+        note_type 12, 8, 2
+        octave 5
+        note D_, 4
+        note C#, 4
+        rest 8
+        note_type 12, 11, 6
+        octave 3
+        note B_, 2
+        note A_, 2
+        note G_, 4
+        rest 4
+        pitch_slide 1, 4, F_
+        note F_, 6
+        rest 2
+        note_type 12, 9, 3
+        octave 4
+        note D_, 4
+        rest 8
+        sound_loop 0, .mainloop
 
 Music_Pokecenter_Ch2::
-	vibrato 8, 2, 5
+        duty_cycle 2
+        vibrato 6, 1, 4
+        note_type 12, 9, 3
 .mainloop:
-	sound_call .sub1
-	duty_cycle 3
-	note_type 12, 10, 5
-	octave 3
-	note A_, 4
-	note E_, 4
-	sound_call .sub2
-	note D_, 2
-	note F#, 6
-	duty_cycle 3
-	note_type 12, 10, 5
-	octave 3
-	note A_, 4
-	note E_, 4
-	sound_call .sub1
-	duty_cycle 3
-	note_type 12, 10, 5
-	octave 3
-	note A_, 4
-	note E_, 4
-	sound_call .sub2
-	note D_, 8
-	duty_cycle 3
-	note_type 12, 10, 5
-	octave 3
-	note D_, 4
-	note E_, 4
-	duty_cycle 2
-	note_type 12, 12, 6
-	octave 4
-	note F#, 8
-	note A_, 8
-	note G_, 2
-	note A_, 2
-	note G_, 2
-	note F#, 2
-	note E_, 8
-	note C#, 8
-	note E_, 8
-	note F#, 2
-	note G_, 2
-	note F#, 2
-	note E_, 2
-	note D_, 8
-	note F#, 8
-	note A_, 8
-	note G_, 2
-	note F#, 2
-	note G_, 2
-	note A_, 2
-	note B_, 8
-	note A_, 4
-	note G_, 2
-	note F#, 2
-	note G_, 8
-	note F#, 2
-	note G_, 2
-	note F#, 2
-	note E_, 2
-	note D_, 8
-	sound_loop 0, .mainloop
-
-.sub1:
-	duty_cycle 2
-	note_type 12, 12, 2
-	octave 4
-	note D_, 2
-	octave 3
-	note A_, 2
-	octave 4
-	note D_, 2
-	note_type 12, 12, 3
-	note A_, 4
-	note G_, 4
-	note F#, 2
-	note E_, 2
-	note C#, 6
-	sound_ret
-
-.sub2:
-	duty_cycle 2
-	note_type 12, 12, 2
-	octave 4
-	note C#, 2
-	octave 3
-	note A_, 2
-	octave 4
-	note C#, 2
-	note_type 12, 12, 3
-	note F#, 4
-	note E_, 4
-	note C#, 2
-	sound_ret
+        rest 8
+        octave 5
+        note E_, 2
+        note D_, 2
+        note C#, 2
+        rest 6
+        note A_, 2
+        rest 4
+        note_type 12, 7, 2
+        octave 4
+        note F#, 4
+        rest 4
+        note_type 12, 9, 3
+        octave 5
+        note B_, 2
+        note A_, 2
+        note F#, 4
+        rest 8
+        sound_loop 0, .mainloop
 
 Music_Pokecenter_Ch3::
-	note_type 12, 1, 0
+        vibrato 4, 1, 2
+        note_type 12, 2, 6
 .mainloop:
-	octave 4
-	note D_, 2
-	note F#, 2
-	note D_, 2
-	note F#, 2
-	note D_, 2
-	note F#, 2
-	note G_, 2
-	note F#, 2
-	sound_call .sub1
-	sound_call .sub2
-	note F#, 2
-	note A_, 2
-	note F#, 2
-	note A_, 2
-	note F#, 2
-	note A_, 2
-	note G_, 2
-	note A_, 2
-	note D_, 2
-	note F#, 2
-	note D_, 2
-	note F#, 2
-	note D_, 2
-	note F#, 2
-	note G_, 2
-	note F#, 2
-	sound_call .sub1
-	sound_call .sub2
-	note D_, 2
-	note F#, 2
-	note D_, 2
-	note F#, 2
-	note D_, 2
-	note B_, 2
-	note A_, 2
-	note G_, 2
-	sound_call .sub3
-	note G_, 2
-	note B_, 2
-	note G_, 2
-	note B_, 2
-	note G_, 2
-	note B_, 2
-	note G_, 2
-	note B_, 2
-	note E_, 2
-	note G_, 2
-	note E_, 2
-	note G_, 2
-	note E_, 2
-	note G_, 2
-	note E_, 2
-	note G_, 2
-	note F#, 2
-	note A_, 2
-	note F#, 2
-	note A_, 2
-	note F#, 2
-	note A_, 2
-	note G#, 2
-	note A_, 2
-	sound_call .sub3
-	note G_, 2
-	note B_, 2
-	note G_, 2
-	note B_, 2
-	note G_, 2
-	note B_, 2
-	note G_, 2
-	note B_, 2
-	note E_, 2
-	note G_, 2
-	note E_, 2
-	note G_, 2
-	note E_, 2
-	note G_, 2
-	note E_, 2
-	note G_, 2
-	note F#, 2
-	note A_, 2
-	note F#, 2
-	note A_, 2
-	note F#, 2
-	note G_, 2
-	note F#, 2
-	note E_, 2
-	sound_loop 0, .mainloop
-
-.sub1:
-	note E_, 2
-	note A_, 2
-	note E_, 2
-	note A_, 2
-	note E_, 2
-	note A_, 2
-	note E_, 2
-	note A_, 2
-	sound_ret
-
-.sub2:
-	note E_, 2
-	note A_, 2
-	note E_, 2
-	note A_, 2
-	note E_, 2
-	note A_, 2
-	note G_, 2
-	note A_, 2
-	sound_ret
-
-.sub3:
-	note F#, 2
-	note A_, 2
-	note F#, 2
-	note A_, 2
-	note F#, 2
-	note A_, 2
-	note F#, 2
-	note A_, 2
-	sound_ret
+        rest 12
+        octave 3
+        note E_, 4
+        rest 4
+        note_type 12, 1, 7
+        note B_, 8
+        rest 8
+        note_type 12, 2, 6
+        octave 2
+        note F_, 12
+        rest 4
+        sound_loop 0, .mainloop
