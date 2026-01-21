@@ -34,7 +34,7 @@ MainMenu:
 	jr z, .noSaveFile
 ; there's a save file
 	hlcoord 0, 0
-	ld b, 6
+	ld b, 7
 	ld c, 13
 	call TextBoxBorder
 	hlcoord 2, 2
@@ -43,7 +43,7 @@ MainMenu:
 	jr .next2
 .noSaveFile
 	hlcoord 0, 0
-	ld b, 4
+	ld b, 5
 	ld c, 13
 	call TextBoxBorder
 	hlcoord 2, 2
@@ -64,6 +64,7 @@ MainMenu:
 	ld a, PAD_A | PAD_B | PAD_START
 	ld [wMenuWatchedKeys], a
 	ld a, [wSaveFileStatus]
+	inc a
 	ld [wMaxMenuItem], a
 	call HandleMenuInput
 	bit B_PAD_B, a
@@ -84,6 +85,12 @@ MainMenu:
 	jr z, .choseContinue
 	cp 1
 	jp z, StartNewGame
+	cp 2
+	jp z, .choseOptions
+	farcall DisplayMusicTestMenu
+	jp .mainMenuLoop
+
+.choseOptions
 	call DisplayOptionMenu
 	ld a, TRUE
 	ld [wOptionsInitialized], a
@@ -347,7 +354,8 @@ ContinueText:
 
 NewGameText:
 	db   "NEW GAME"
-	next "OPTION@"
+	next "OPTION"
+	next "MUSIC TEST@"
 
 CableClubOptionsText:
 	db   "TRADE CENTER"
